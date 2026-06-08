@@ -31,3 +31,20 @@ VALUES (
     'ACTIVE'
 );
 
+
+CREATE TABLE candidatos (
+    id VARCHAR(36) NOT NULL,
+    nombre VARCHAR(50) NOT NULL,
+    apellido VARCHAR(50) NOT NULL,
+    pais VARCHAR(50) NOT NULL,
+    ciudad VARCHAR(50) NOT NULL,
+    barrio VARCHAR(50) NOT NULL,
+    numero_manzana VARCHAR(20) NOT NULL,
+    numero_casa VARCHAR(20) NOT NULL,
+    telefono VARCHAR(50) NOT NULL,
+    correo VARCHAR(150) NOT NULL,
+	PRIMARY KEY (id)
+);
+
+
+
