@@ -10,8 +10,16 @@ import com.jcaa.usersmanagement.infrastructure.entrypoint.desktop.cli.handler.Up
 import com.jcaa.usersmanagement.infrastructure.entrypoint.desktop.cli.io.ConsoleIO;
 import com.jcaa.usersmanagement.infrastructure.entrypoint.desktop.cli.io.UserResponsePrinter;
 import com.jcaa.usersmanagement.infrastructure.entrypoint.desktop.cli.menu.MenuOption;
+import com.jcaa.usersmanagement.infrastructure.entrypoint.desktop.cli.handler.CreateCandidatoHandler;
+import com.jcaa.usersmanagement.infrastructure.entrypoint.desktop.cli.handler.DeleteCandidatoHandler;
+import com.jcaa.usersmanagement.infrastructure.entrypoint.desktop.cli.handler.FindCandidatoByIdHandler;
+import com.jcaa.usersmanagement.infrastructure.entrypoint.desktop.cli.handler.ListCandidatosHandler;
+import com.jcaa.usersmanagement.infrastructure.entrypoint.desktop.cli.handler.UpdateCandidatoHandler;
+import com.jcaa.usersmanagement.infrastructure.entrypoint.desktop.cli.io.CandidatoResponsePrinter;
+import com.jcaa.usersmanagement.infrastructure.entrypoint.desktop.controller.CandidatoController;
 import com.jcaa.usersmanagement.infrastructure.entrypoint.desktop.controller.UserController;
 import jakarta.validation.ConstraintViolationException;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -28,12 +36,14 @@ public final class UserManagementCli {
   private static final String MENU_BORDER = "  ==========================================";
 
   private final UserController userController;
+  private final CandidatoController candidatoController;
   private final ConsoleIO console;
 
   public void start() {
     console.println(BANNER);
-    final UserResponsePrinter printer = new UserResponsePrinter(console);
-    runLoop(buildHandlers(printer));
+    final UserResponsePrinter userPrinter = new UserResponsePrinter(console);
+    final CandidatoResponsePrinter candidatoPrinter = new CandidatoResponsePrinter(console);
+    runLoop(buildHandlers(userPrinter, candidatoPrinter));
   }
 
   private void runLoop(final Map<MenuOption, OperationHandler> handlers) {
@@ -67,14 +77,23 @@ public final class UserManagementCli {
     }
   }
 
-  private Map<MenuOption, OperationHandler> buildHandlers(final UserResponsePrinter printer) {
-    return Map.of(
-        MenuOption.LIST_USERS,  new ListUsersHandler(userController, printer),
-        MenuOption.FIND_USER,   new FindUserByIdHandler(userController, console, printer),
-        MenuOption.CREATE_USER, new CreateUserHandler(userController, console, printer),
-        MenuOption.UPDATE_USER, new UpdateUserHandler(userController, console, printer),
-        MenuOption.DELETE_USER, new DeleteUserHandler(userController, console),
-        MenuOption.LOGIN,       new LoginHandler(userController, console, printer));
+  private Map<MenuOption, OperationHandler> buildHandlers(
+      final UserResponsePrinter userPrinter, final CandidatoResponsePrinter candidatoPrinter) {
+    final Map<MenuOption, OperationHandler> handlers = new HashMap<>();
+    handlers.put(MenuOption.LIST_USERS, new ListUsersHandler(userController, userPrinter));
+    handlers.put(MenuOption.FIND_USER, new FindUserByIdHandler(userController, console, userPrinter));
+    handlers.put(MenuOption.CREATE_USER, new CreateUserHandler(userController, console, userPrinter));
+    handlers.put(MenuOption.UPDATE_USER, new UpdateUserHandler(userController, console, userPrinter));
+    handlers.put(MenuOption.DELETE_USER, new DeleteUserHandler(userController, console));
+    handlers.put(MenuOption.LOGIN, new LoginHandler(userController, console, userPrinter));
+    
+    handlers.put(MenuOption.LIST_CANDIDATOS, new ListCandidatosHandler(candidatoController, candidatoPrinter));
+    handlers.put(MenuOption.FIND_CANDIDATO, new FindCandidatoByIdHandler(candidatoController, console, candidatoPrinter));
+    handlers.put(MenuOption.CREATE_CANDIDATO, new CreateCandidatoHandler(candidatoController, console, candidatoPrinter));
+    handlers.put(MenuOption.UPDATE_CANDIDATO, new UpdateCandidatoHandler(candidatoController, console, candidatoPrinter));
+    handlers.put(MenuOption.DELETE_CANDIDATO, new DeleteCandidatoHandler(candidatoController, console));
+    
+    return Map.copyOf(handlers);
   }
 
   private void printMenu() {

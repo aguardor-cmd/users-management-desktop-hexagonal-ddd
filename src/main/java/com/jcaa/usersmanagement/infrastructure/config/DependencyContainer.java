@@ -20,6 +20,19 @@ import com.jcaa.usersmanagement.infrastructure.adapter.persistence.config.Databa
 import com.jcaa.usersmanagement.infrastructure.adapter.persistence.repository.UserRepositoryMySQL;
 import com.jcaa.usersmanagement.infrastructure.entrypoint.desktop.controller.UserController;
 
+import com.jcaa.usersmanagement.application.port.in.CreateCandidatoUseCase;
+import com.jcaa.usersmanagement.application.port.in.DeleteCandidatoUseCase;
+import com.jcaa.usersmanagement.application.port.in.GetAllCandidatosUseCase;
+import com.jcaa.usersmanagement.application.port.in.GetCandidatoByIdUseCase;
+import com.jcaa.usersmanagement.application.port.in.UpdateCandidatoUseCase;
+import com.jcaa.usersmanagement.application.service.CreateCandidatoService;
+import com.jcaa.usersmanagement.application.service.DeleteCandidatoService;
+import com.jcaa.usersmanagement.application.service.GetAllCandidatosService;
+import com.jcaa.usersmanagement.application.service.GetCandidatoByIdService;
+import com.jcaa.usersmanagement.application.service.UpdateCandidatoService;
+import com.jcaa.usersmanagement.infrastructure.adapter.persistence.repository.CandidatoRepositoryMySQL;
+import com.jcaa.usersmanagement.infrastructure.entrypoint.desktop.controller.CandidatoController;
+
 import java.sql.Connection;
 import jakarta.validation.Validator;
 
@@ -39,6 +52,7 @@ public final class DependencyContainer {
   private static final String SMTP_FROM_NAME = "smtp.from.name";
 
   private final UserController userController;
+  private final CandidatoController candidatoController;
 
   public DependencyContainer() {
     final AppProperties properties = new AppProperties();
@@ -71,10 +85,33 @@ public final class DependencyContainer {
             getUserByIdUseCase,
             getAllUsersUseCase,
             loginUseCase);
+
+    final CandidatoRepositoryMySQL candidatoRepository = new CandidatoRepositoryMySQL(connection);
+
+    final CreateCandidatoUseCase createCandidatoUseCase =
+        new CreateCandidatoService(candidatoRepository, candidatoRepository, validator);
+    final UpdateCandidatoUseCase updateCandidatoUseCase =
+        new UpdateCandidatoService(candidatoRepository, candidatoRepository, validator);
+    final DeleteCandidatoUseCase deleteCandidatoUseCase =
+        new DeleteCandidatoService(candidatoRepository, validator);
+    final GetCandidatoByIdUseCase getCandidatoByIdUseCase = new GetCandidatoByIdService(candidatoRepository, validator);
+    final GetAllCandidatosUseCase getAllCandidatosUseCase = new GetAllCandidatosService(candidatoRepository);
+
+    this.candidatoController =
+        new CandidatoController(
+            createCandidatoUseCase,
+            updateCandidatoUseCase,
+            deleteCandidatoUseCase,
+            getCandidatoByIdUseCase,
+            getAllCandidatosUseCase);
   }
 
   public UserController userController() {
     return userController;
+  }
+
+  public CandidatoController candidatoController() {
+    return candidatoController;
   }
 
   private static Connection buildDatabaseConnection(final AppProperties properties) {
