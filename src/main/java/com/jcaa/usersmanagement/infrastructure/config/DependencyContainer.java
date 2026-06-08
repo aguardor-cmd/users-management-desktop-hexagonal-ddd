@@ -91,9 +91,9 @@ public final class DependencyContainer {
     final CreateCandidatoUseCase createCandidatoUseCase =
         new CreateCandidatoService(candidatoRepository, candidatoRepository, validator);
     final UpdateCandidatoUseCase updateCandidatoUseCase =
-        new UpdateCandidatoService(candidatoRepository, candidatoRepository, validator);
+        new UpdateCandidatoService(candidatoRepository, candidatoRepository, candidatoRepository, validator);
     final DeleteCandidatoUseCase deleteCandidatoUseCase =
-        new DeleteCandidatoService(candidatoRepository, validator);
+        new DeleteCandidatoService(candidatoRepository, candidatoRepository, validator);
     final GetCandidatoByIdUseCase getCandidatoByIdUseCase = new GetCandidatoByIdService(candidatoRepository, validator);
     final GetAllCandidatosUseCase getAllCandidatosUseCase = new GetAllCandidatosService(candidatoRepository);
 
